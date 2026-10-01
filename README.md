@@ -1,5 +1,7 @@
 # Permit Matrix — API authorization contract tester
 
+[Open the public educational demo](https://dln-permit-matrix.vercel.app). It runs only against an in-browser synthetic mock, not a real API.
+
 **Educational prototype (October 2026).** Permit Matrix turns a small, local API contract into a complete set of authorization test cases — every role against every endpoint against *own*, *peer* and *cross-tenant* records, plus property-level probes — and runs them against a deterministic mock server that lives entirely inside the browser tab. It is a teaching and portfolio tool for reasoning about OWASP API Security Top 10 (2023) authorization classes. It is **not** a penetration-testing tool, it never contacts a network host, and nothing here is a security certification or compliance opinion.
 
 ## What problem it addresses
