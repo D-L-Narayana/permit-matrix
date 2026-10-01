@@ -1,0 +1,26 @@
+[
+  {
+    "viewport": "desktop",
+    "width": 1440,
+    "scrollWidth": 1440,
+    "horizontalOverflow": false,
+    "pageErrors": [],
+    "failedRequests": []
+  },
+  {
+    "viewport": "tablet",
+    "width": 768,
+    "scrollWidth": 768,
+    "horizontalOverflow": false,
+    "pageErrors": [],
+    "failedRequests": []
+  },
+  {
+    "viewport": "mobile",
+    "width": 375,
+    "scrollWidth": 375,
+    "horizontalOverflow": false,
+    "pageErrors": [],
+    "failedRequests": []
+  }
+]

@@ -1,0 +1,30 @@
+   ✓ contract validation > accepts the synthetic Ledgerly contract 2ms
+   ✓ contract validation > refuses any server that is not a mock:// or localhost target 1ms
+   ✓ contract validation > rejects contracts above the endpoint limit 1ms
+   ✓ contract validation > rejects endpoints that reference unknown roles or resources 0ms
+   ✓ contract validation > rejects malformed JSON and oversized text 1ms
+   ✓ case generation > derives own / peer / cross-tenant expectations for an owner-scoped endpoint 1ms
+   ✓ case generation > marks role-excluded calls as function-level denials 1ms
+   ✓ case generation > adds property-level cases for writable and sensitive field rules 0ms
+   ✓ case generation > is deterministic 2ms
+   ✓ mock server > fixed build denies a member reading a peer invoice 1ms
+   ✓ mock server > vulnerable build leaks the peer invoice (BOLA) 0ms
+   ✓ mock server > fixed build ignores non-writable fields and strips sensitive fields 1ms
+   ✓ mock server > returns 401 for unknown principals and 404 for unknown routes 0ms
+   ✓ suite runner and findings > reports no findings against the remediated build 5ms
+   ✓ suite runner and findings > classifies the four seeded flaws with OWASP API Security Top 10 (2023) ids 4ms
+   ✓ suite runner and findings > flags over-denial as a functional regression rather than a security pass 5ms
+   ✓ suite runner and findings > builds a coverage matrix of endpoints by roles 3ms
+   ✓ report export > produces a stable schema and never includes raw bearer tokens 3ms
+   × contract validation — review regressions > measures the byte limit in UTF-8 bytes, not UTF-16 code units 6ms
+   × contract validation — review regressions > rejects duplicate record ids within a resource 2ms
+   × contract validation — review regressions > rejects non-finite numeric field values such as 1e999 1ms
+   × contract validation — review regressions > caps servers, builds and flaws per build 1ms
+   × contract validation — review regressions > does not throw on absurdly large lists passed as objects 89ms
+     → expected [Function] to not throw an error but 'RangeError: Maximum call stack size e…' was thrown
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/engine/__tests__/engine.test.ts > contract validation — review regressions > measures the byte limit in UTF-8 bytes, not UTF-16 code units
+AssertionError: expected 'name is required.' to match /bytes/
+ FAIL  src/engine/__tests__/engine.test.ts > contract validation — review regressions > rejects duplicate record ids within a resource
+AssertionError: expected true to be false // Object.is equality
+ FAIL  src/engine/__tests__/engine.test.ts > contract validation — review regressions > rejects non-finite numeric field values such as 1e999

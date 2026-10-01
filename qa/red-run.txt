@@ -1,0 +1,25 @@
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/engine/__tests__/engine.test.ts [ src/engine/__tests__/engine.test.ts ]
+Error: Cannot find module '../contract' imported from '/home/user/workspace/cyber-portfolio/candidates/appsec/permitmatrix/src/engine/__tests__/engine.test.ts'
+ ❯ src/engine/__tests__/engine.test.ts:3:1
+      1| import { describe, expect, it } from 'vitest';
+      2| import fixture from '../../fixtures/ledgerly-contract.json';
+      3| import { parseContract, validateContract, LIMITS } from '../contract';
+       | ^
+      4| import { generateCases } from '../cases';
+      5| import { createMockServer } from '../mockServer';
+
+Caused by: Error: Failed to load url ../contract (resolved id: ../contract) in /home/user/workspace/cyber-portfolio/candidates/appsec/permitmatrix/src/engine/__tests__/engine.test.ts. Does the file exist?
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/config.js:22739:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  12:56:18
+   Duration  264ms (transform 54ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 58ms)
+

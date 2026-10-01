@@ -1,0 +1,12 @@
+     × rejects two endpoints with the same method and path template 6ms
+     × rejects parameter names other than {id}, more than one parameter, and templates that differ only by parameter name 1ms
+     × routes a literal path to its own endpoint even when registered after a {id} sibling 3ms
+     × keeps the demo contract self-consistent: list and item scope agree, and the remediated build never lists a record the item route would deny 4ms
+     × states in the export that response bodies carry fictional field values even though headers are redacted 3ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected true to be false // Object.is equality
+AssertionError: expected false to be true // Object.is equality
+AssertionError: expected 'same-tenant' to be 'own' // Object.is equality
+TypeError: .toMatch() expects to receive a string, but got undefined
+      Tests  5 failed | 23 passed (28)

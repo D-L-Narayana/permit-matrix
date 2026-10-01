@@ -1,0 +1,59 @@
+{
+  "schema": "permitmatrix.contract/1",
+  "name": "Ledgerly Billing API (synthetic demo)",
+  "version": "1.4.0",
+  "servers": ["mock://ledgerly.example"],
+  "roles": [
+    { "id": "admin", "label": "Admin" },
+    { "id": "manager", "label": "Tenant manager" },
+    { "id": "member", "label": "Member" }
+  ],
+  "principals": [
+    { "id": "p-admin-1", "role": "admin", "tenant": "acme.example", "label": "Avery (admin)" },
+    { "id": "p-mgr-1", "role": "manager", "tenant": "acme.example", "label": "Morgan (manager, acme)" },
+    { "id": "p-mem-1", "role": "member", "tenant": "acme.example", "label": "Riley (member, acme)" },
+    { "id": "p-mem-2", "role": "member", "tenant": "globex.example", "label": "Sam (member, globex)" }
+  ],
+  "resources": [
+    {
+      "id": "invoices",
+      "label": "Invoices",
+      "records": [
+        { "id": "inv-1001", "owner": "p-mem-1", "tenant": "acme.example", "fields": { "amount": 120.5, "status": "open", "memo": "Design retainer" } },
+        { "id": "inv-1002", "owner": "p-mgr-1", "tenant": "acme.example", "fields": { "amount": 980.0, "status": "paid", "memo": "Quarterly licence" } },
+        { "id": "inv-2001", "owner": "p-mem-2", "tenant": "globex.example", "fields": { "amount": 45.0, "status": "open", "memo": "Courier" } },
+        { "id": "inv-0001", "owner": "p-admin-1", "tenant": "acme.example", "fields": { "amount": 10.0, "status": "void", "memo": "Platform fee" } }
+      ]
+    },
+    {
+      "id": "users",
+      "label": "Users",
+      "records": [
+        { "id": "p-admin-1", "owner": "p-admin-1", "tenant": "acme.example", "fields": { "displayName": "Avery", "role": "admin", "email": "avery@acme.example", "passwordHash": "argon2id$synthetic$0001" } },
+        { "id": "p-mgr-1", "owner": "p-mgr-1", "tenant": "acme.example", "fields": { "displayName": "Morgan", "role": "manager", "email": "morgan@acme.example", "passwordHash": "argon2id$synthetic$0002" } },
+        { "id": "p-mem-1", "owner": "p-mem-1", "tenant": "acme.example", "fields": { "displayName": "Riley", "role": "member", "email": "riley@acme.example", "passwordHash": "argon2id$synthetic$0003" } },
+        { "id": "p-mem-2", "owner": "p-mem-2", "tenant": "globex.example", "fields": { "displayName": "Sam", "role": "member", "email": "sam@globex.example", "passwordHash": "argon2id$synthetic$0004" } }
+      ]
+    }
+  ],
+  "endpoints": [
+    { "id": "list-invoices", "method": "GET", "path": "/invoices", "resource": "invoices", "access": { "roles": ["admin", "manager", "member"], "ownership": "own" } },
+    { "id": "get-invoice", "method": "GET", "path": "/invoices/{id}", "resource": "invoices", "access": { "roles": ["admin", "manager", "member"], "ownership": "own" } },
+    { "id": "patch-invoice", "method": "PATCH", "path": "/invoices/{id}", "resource": "invoices", "access": { "roles": ["admin", "manager"], "ownership": "same-tenant" }, "writableFields": ["memo"] },
+    { "id": "get-user", "method": "GET", "path": "/users/{id}", "resource": "users", "access": { "roles": ["admin", "manager", "member"], "ownership": "own" }, "sensitiveFields": ["passwordHash"] },
+    { "id": "patch-user", "method": "PATCH", "path": "/users/{id}", "resource": "users", "access": { "roles": ["admin", "manager", "member"], "ownership": "own" }, "writableFields": ["displayName"] },
+    { "id": "delete-user", "method": "DELETE", "path": "/users/{id}", "resource": "users", "access": { "roles": ["admin"], "ownership": "any" } }
+  ],
+  "builds": {
+    "vulnerable": {
+      "label": "release/1.4.0 (vulnerable)",
+      "flaws": [
+        { "endpoint": "get-invoice", "kind": "skip-ownership-check" },
+        { "endpoint": "delete-user", "kind": "skip-role-check" },
+        { "endpoint": "patch-user", "kind": "accept-all-fields" },
+        { "endpoint": "get-user", "kind": "return-sensitive-fields" }
+      ]
+    },
+    "fixed": { "label": "release/1.4.1 (remediated)", "flaws": [] }
+  }
+}

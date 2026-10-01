@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /home/user/workspace/cyber-portfolio/candidates/appsec/permitmatrix
+
+ ✓ src/engine/__tests__/engine.test.ts (18 tests) 30ms
+
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Start at  12:59:43
+   Duration  384ms (transform 119ms, setup 0ms, collect 146ms, tests 30ms, environment 0ms, prepare 58ms)
+
