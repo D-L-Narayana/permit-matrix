@@ -1,0 +1,132 @@
+/* Permit Matrix — component rules for src/ui.
+   Design tokens (--paper, --panel, --ink, --line, --focus, verdict colours, --radius, fonts) are defined once
+   in src/styles.css; this file only styles the components under src/ui so the layout shell stays separate. */
+
+/* Toolbar */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 10px 22px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.toolbar .group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.toolbar label.inline { font-size: 13px; color: var(--ink-2); }
+.toolbar select { padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.toolbar select#fixture { max-width: 260px; }
+.toolbar .spacer { flex: 1 1 auto; }
+
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius); padding: 7px 12px; font-weight: 500; font-size: 14px; }
+.btn:hover { background: var(--panel-2); }
+.btn.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn.primary:hover { background: #22304a; }
+.btn.small { padding: 4px 9px; font-size: 13px; }
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+
+/* Flaw switches */
+.flaws { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.flaw { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-2); }
+.flaw code { color: var(--ink); }
+.switch { width: 34px; height: 20px; border-radius: 999px; background: var(--line); border: none; position: relative; padding: 0; }
+.switch[data-state='checked'] { background: var(--bypass); }
+.switch .thumb { display: block; width: 16px; height: 16px; border-radius: 50%; background: #fff; transform: translateX(2px); transition: transform 120ms; box-shadow: 0 1px 2px rgb(0 0 0 / 0.3); }
+.switch[data-state='checked'] .thumb { transform: translateX(16px); }
+
+/* Section headings shared by the rail, matrix, findings and ledger */
+h2.section { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); margin: 18px 0 8px; font-weight: 600; }
+h2.section:first-child { margin-top: 0; }
+
+/* Contract rail */
+.rail ul { list-style: none; margin: 0; padding: 0; }
+.rail li { padding: 4px 0; font-size: 13px; display: flex; gap: 8px; align-items: baseline; }
+.rail li code { color: var(--ink); }
+.rail .muted { color: var(--ink-3); }
+.pill { display: inline-block; font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--panel-2); color: var(--ink-2); }
+.pill.method-GET { background: #dde8fb; color: #1d3f8f; }
+.pill.method-PATCH, .pill.method-PUT, .pill.method-POST { background: #f6e6c9; color: #6d4700; }
+.pill.method-DELETE { background: #f8d9d5; color: #8a1c13; }
+
+/* Matrix */
+.matrix-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+table.matrix { border-collapse: collapse; width: 100%; min-width: 640px; }
+.matrix th, .matrix td { border-bottom: 1px solid var(--line-2); text-align: left; vertical-align: top; }
+.matrix thead th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); padding: 10px 12px; background: var(--panel-2); font-weight: 600; }
+.matrix tbody th { padding: 10px 12px; font-weight: 500; width: 230px; }
+.matrix tbody th .path { font-family: var(--mono); font-size: 13px; display: block; }
+.matrix tbody th .rule { font-size: 12px; color: var(--ink-3); }
+.matrix td { padding: 6px 8px; }
+/* The anonymous (no credentials) column is set apart: it tests authentication, not policy. */
+.matrix thead th.anon, .matrix td.anon { border-left: 1px solid var(--line); }
+.matrix thead th.anon { font-style: italic; text-transform: none; letter-spacing: 0; }
+.cell { width: 100%; text-align: left; border: 1px solid transparent; border-radius: var(--radius); padding: 6px 8px; background: transparent; display: grid; gap: 6px; }
+.cell:hover { border-color: var(--line); background: var(--paper); }
+.cell[aria-pressed='true'] { border-color: var(--ink); background: var(--paper); }
+/* Roving-tabindex cells: the ring sits inside the cell so the scrolling wrapper never clips it. */
+.cell:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; border-color: var(--focus); }
+.cell .none { font-size: 11px; color: var(--ink-3); font-style: italic; }
+/* Probe dots wrap onto further lines so a cell with many property probes never widens the table past the viewport
+   (which would push the anonymous column out of sight); the three target pins always stay on the first line. */
+.pins { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; row-gap: 3px; }
+.pin { width: 14px; height: 18px; border-radius: 3px; border: 2px solid var(--line); background: transparent; position: relative; }
+.pin.v-pass.exp-allow { background: var(--pass); border-color: var(--pass); }
+.pin.v-pass.exp-deny { border-color: var(--pass); background: repeating-linear-gradient(135deg, transparent 0 2px, var(--pass-bg) 2px 4px); }
+.pin.v-bypass { background: var(--bypass); border-color: var(--bypass); }
+.pin.v-over-deny { background: var(--overdeny); border-color: var(--overdeny); }
+.pin.v-exposure { background: var(--exposure); border-color: var(--exposure); }
+.pin.v-mass-assignment { background: var(--exposure); border-color: var(--exposure); border-style: dashed; }
+.pin.v-error { background: var(--error); border-color: var(--error); }
+.pin.absent { border-style: dotted; opacity: 0.5; }
+.pin.prop { width: 10px; height: 10px; border-radius: 50%; }
+/* Authentication pins: padlock silhouette, and a ring instead of stripes when the endpoint correctly rejected
+   the anonymous caller, so "no credentials → 401" reads differently from a policy denial. */
+.pin.auth { border-radius: 7px 7px 3px 3px; }
+.pin.auth.v-pass.exp-deny { background: var(--pass-bg); border-color: var(--pass); box-shadow: inset 0 0 0 2px var(--panel); }
+.pins .sep { width: 1px; height: 14px; background: var(--line); margin: 0 2px; }
+.cell .count { font-size: 11px; color: var(--ink-3); font-family: var(--mono); }
+.cell .count.bad { color: var(--bypass); font-weight: 500; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--ink-2); margin: 10px 0 0; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Findings */
+.findings { display: grid; gap: 10px; }
+.finding { border: 1px solid var(--line); border-left-width: 5px; border-radius: var(--radius); background: var(--panel); padding: 10px 14px; display: grid; gap: 4px; }
+.finding.sev-high { border-left-color: var(--bypass); }
+.finding.sev-medium { border-left-color: var(--overdeny); }
+.finding.sev-low { border-left-color: var(--error); }
+.finding .head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.finding .head strong { font-weight: 600; }
+.finding .meta { font-size: 12px; color: var(--ink-3); font-family: var(--mono); }
+.finding p { margin: 2px 0 0; font-size: 14px; color: var(--ink-2); }
+.finding .evidence { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.finding .evidence button { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); }
+.empty { border: 1px dashed var(--line); border-radius: var(--radius); padding: 18px; color: var(--ink-2); background: var(--panel); font-size: 14px; }
+.empty.good { border-color: var(--pass); color: var(--pass); background: var(--pass-bg); }
+
+/* Case ledger */
+.ledger .case-list { display: grid; gap: 4px; margin: 0 0 12px; padding: 0; list-style: none; }
+.ledger .case-list button { width: 100%; text-align: left; display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: center; padding: 6px 8px; border: 1px solid transparent; border-radius: var(--radius); background: transparent; font-size: 13px; }
+.ledger .case-list button:hover { background: var(--paper); }
+.ledger .case-list button[aria-pressed='true'] { border-color: var(--ink); background: var(--paper); }
+.ledger .case-list .k { font-family: var(--mono); font-size: 12px; }
+.verdict { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.verdict.v-pass { background: var(--pass-bg); color: var(--pass); }
+.verdict.v-bypass { background: var(--bypass-bg); color: var(--bypass); }
+.verdict.v-over-deny { background: var(--overdeny-bg); color: var(--overdeny); }
+.verdict.v-exposure, .verdict.v-mass-assignment { background: var(--exposure-bg); color: var(--exposure); }
+.verdict.v-error { background: var(--error-bg); color: var(--error); }
+.exchange { display: grid; gap: 10px; }
+.exchange pre { margin: 0; background: var(--paper); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 10px; font-family: var(--mono); font-size: 12px; white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto; }
+.exchange .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.why { font-size: 14px; border-left: 3px solid var(--ink); padding: 4px 10px; margin: 0; color: var(--ink-2); }
+.why strong { color: var(--ink); }
+
+/* Import dialog (Radix) */
+.overlay { position: fixed; inset: 0; background: rgb(15 26 44 / 0.45); }
+.dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(720px, calc(100vw - 24px)); max-height: calc(100vh - 24px); overflow: auto; background: var(--panel); border-radius: 10px; padding: 20px; box-shadow: 0 20px 60px rgb(0 0 0 / 0.25); }
+.dialog h2 { margin: 0 0 6px; font-size: 18px; }
+.dialog p { color: var(--ink-2); font-size: 14px; margin: 0 0 10px; }
+.dialog textarea { width: 100%; min-height: 220px; font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; resize: vertical; }
+.dialog .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+.errors { margin: 10px 0 0; padding: 10px 12px 10px 28px; background: var(--bypass-bg); color: var(--bypass); border-radius: var(--radius); font-size: 13px; }
+/* Importer notes are informational (renamed parameters, skipped operations): neutral, not a verdict colour. */
+.notes { margin: 10px 0 0; padding: 10px 12px 10px 28px; background: var(--panel-2); color: var(--ink-2); border-radius: var(--radius); font-size: 13px; }
+.notice { margin: 10px 0 0; padding: 10px 12px; background: var(--pass-bg); color: var(--pass); border-radius: var(--radius); font-size: 13px; }
+
+@media (max-width: 720px) {
+  .matrix tbody th { width: 160px; }
+}

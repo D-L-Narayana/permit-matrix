@@ -1,0 +1,366 @@
+{
+  "policySource": "vercel.json headers applied to every response of the private loopback servers",
+  "expectedHeaders": {
+    "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "no-referrer",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
+    "Cross-Origin-Resource-Policy": "same-origin"
+  },
+  "headers": [
+    {
+      "path": "/",
+      "label": "index",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-mono-latin-400-normal-CvHOgSBP.woff",
+      "label": "asset ibm-plex-mono-latin-400-normal-CvHOgSBP.woff",
+      "status": 200,
+      "contentType": "font/woff",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2",
+      "label": "asset ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2",
+      "status": 200,
+      "contentType": "font/woff2",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-mono-latin-500-normal-CB9ihrfo.woff",
+      "label": "asset ibm-plex-mono-latin-500-normal-CB9ihrfo.woff",
+      "status": 200,
+      "contentType": "font/woff",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-mono-latin-500-normal-DSY6xOcd.woff2",
+      "label": "asset ibm-plex-mono-latin-500-normal-DSY6xOcd.woff2",
+      "status": 200,
+      "contentType": "font/woff2",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2",
+      "label": "asset ibm-plex-sans-latin-400-normal-CDDApCn2.woff2",
+      "status": 200,
+      "contentType": "font/woff2",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff",
+      "label": "asset ibm-plex-sans-latin-400-normal-CYLoc0-x.woff",
+      "status": 200,
+      "contentType": "font/woff",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2",
+      "label": "asset ibm-plex-sans-latin-500-normal-6ng42L7E.woff2",
+      "status": 200,
+      "contentType": "font/woff2",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-sans-latin-500-normal-BgVn5rGT.woff",
+      "label": "asset ibm-plex-sans-latin-500-normal-BgVn5rGT.woff",
+      "status": 200,
+      "contentType": "font/woff",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff",
+      "label": "asset ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff",
+      "status": 200,
+      "contentType": "font/woff",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2",
+      "label": "asset ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2",
+      "status": 200,
+      "contentType": "font/woff2",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/index-DD5h4aQ0.js",
+      "label": "asset index-DD5h4aQ0.js",
+      "status": 200,
+      "contentType": "text/javascript; charset=utf-8",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/assets/index-DKl-EcGe.css",
+      "label": "asset index-DKl-EcGe.css",
+      "status": 200,
+      "contentType": "text/css; charset=utf-8",
+      "headersChecked": 8,
+      "mismatches": []
+    },
+    {
+      "path": "/schema/permitmatrix.contract-1.schema.json",
+      "label": "schema permitmatrix.contract-1.schema.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "headersChecked": 8,
+      "mismatches": []
+    }
+  ],
+  "production": {
+    "base": "loopback static server over dist/ with production headers; no injected scripts",
+    "steps": [
+      {
+        "name": "page loads",
+        "detail": "Permit Matrix · API authorization contract tester"
+      },
+      {
+        "name": "no horizontal overflow desktop 1440 initial",
+        "detail": "1440px"
+      },
+      {
+        "name": "run completes",
+        "detail": "Run 89 cases → Ran 89 cases against \"release/1.4.0 (vulnerable)\" with 4 active flaw(s): 4 finding(s)."
+      },
+      {
+        "name": "findings rendered",
+        "detail": "4 finding articles"
+      },
+      {
+        "name": "request redacted in ledger"
+      },
+      {
+        "name": "evidence chip selects a case"
+      },
+      {
+        "name": "anonymous case has no Authorization header"
+      },
+      {
+        "name": "remediated build re-run",
+        "detail": "No findings"
+      },
+      {
+        "name": "run comparison panel",
+        "detail": "Changes since previous runrelease/1.4.0 (vulnerable) (4 active flaws) → release/1.4.1 (remediated) (0 active flaws)4 findings fixed, 0 introduced; 31 cases improved, 0 regressedFixed findingsBroken Fu"
+      },
+      {
+        "name": "Export JSON download",
+        "detail": "permitmatrix-1.4.0-fixed.json (73520 bytes)"
+      },
+      {
+        "name": "Export SARIF download",
+        "detail": "permitmatrix-1.4.0-fixed.sarif.json (1430 bytes)"
+      },
+      {
+        "name": "Helpdesk fixture run",
+        "detail": "Run 114 cases → Ran 114 cases against \"release/2.3.0 (vulnerable)\" with 4 active flaw(s): 4 finding(s)."
+      },
+      {
+        "name": "Helpdesk auth-bypass finding shown",
+        "detail": "API2:2023 · high · export-tickets"
+      },
+      {
+        "name": "anonymous export cell reports the failure",
+        "detail": "GET /tickets/export as Anonymous (no credentials): 1 cases, 1 failed"
+      },
+      {
+        "name": "contract health panel",
+        "detail": "Contract healthNo warnings. Every lint rule passed for this contract."
+      },
+      {
+        "name": "external target refused on import",
+        "detail": "servers[0]: External target refused: \"https://api.victim.example\". Only mock:// or localhost targets are allowed."
+      },
+      {
+        "name": "dialog stays open after refusal"
+      },
+      {
+        "name": "no horizontal overflow tablet 768",
+        "detail": "768px"
+      },
+      {
+        "name": "no horizontal overflow mobile 375",
+        "detail": "375px"
+      }
+    ],
+    "consoleErrors": [],
+    "cspConsoleReports": [],
+    "pageErrors": [],
+    "failedRequests": [],
+    "foreignRequests": [],
+    "sameOriginRequests": 24,
+    "viewports": [
+      {
+        "label": "desktop 1440 initial",
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "horizontalOverflow": false
+      },
+      {
+        "label": "tablet 768",
+        "scrollWidth": 768,
+        "innerWidth": 768,
+        "horizontalOverflow": false
+      },
+      {
+        "label": "mobile 375",
+        "scrollWidth": 375,
+        "innerWidth": 375,
+        "horizontalOverflow": false
+      }
+    ],
+    "downloads": [
+      {
+        "button": "Export JSON",
+        "suggestedFilename": "permitmatrix-1.4.0-fixed.json",
+        "bytes": 73520,
+        "ok": true,
+        "leaks": false
+      },
+      {
+        "button": "Export SARIF",
+        "suggestedFilename": "permitmatrix-1.4.0-fixed.sarif.json",
+        "bytes": 1430,
+        "ok": true,
+        "leaks": false
+      }
+    ],
+    "missingUpgradeFeatures": []
+  },
+  "instrumentation": {
+    "base": "same headers; adds same-origin /__qa/axe.min.js and a CDP init-script listener for securitypolicyviolation",
+    "steps": [
+      {
+        "name": "axe initial",
+        "detail": "0 violations"
+      },
+      {
+        "name": "axe after run",
+        "detail": "0 violations"
+      },
+      {
+        "name": "axe helpdesk after run",
+        "detail": "0 violations"
+      },
+      {
+        "name": "axe import dialog open",
+        "detail": "0 violations"
+      },
+      {
+        "name": "CSP violations from the application",
+        "detail": "0 securitypolicyviolation events"
+      },
+      {
+        "name": "CSP enforcement controls",
+        "detail": "inline script blocked (script-src-elem reported), cross-origin fetch blocked (connect-src reported)"
+      },
+      {
+        "name": "CSP console reporting channel",
+        "detail": "3 \"Refused to…\" console reports observed for the controls"
+      }
+    ],
+    "axe": [
+      {
+        "label": "initial",
+        "violations": []
+      },
+      {
+        "label": "after run",
+        "violations": []
+      },
+      {
+        "label": "helpdesk after run",
+        "violations": []
+      },
+      {
+        "label": "import dialog open",
+        "violations": []
+      }
+    ],
+    "appCspViolations": [],
+    "controlCspViolations": [
+      {
+        "effectiveDirective": "script-src-elem",
+        "blockedURI": "inline",
+        "disposition": "enforce",
+        "sourceFile": "",
+        "line": 5,
+        "sample": ""
+      },
+      {
+        "effectiveDirective": "connect-src",
+        "blockedURI": "http://127.0.0.1:9/",
+        "disposition": "enforce",
+        "sourceFile": "",
+        "line": 2,
+        "sample": ""
+      }
+    ],
+    "consoleErrors": [
+      "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-yCCmEwGZJeo2agCeiLfCttMNKOaDz/KGj2Zv6OF2ZVQ='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+      "Connecting to 'http://127.0.0.1:9/' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+      "Fetch API cannot load http://127.0.0.1:9/. Refused to connect because it violates the document's Content Security Policy."
+    ],
+    "cspConsoleReports": [
+      "Executing inline script violates the following Content Security Policy directive 'script-src 'self''. Either the 'unsafe-inline' keyword, a hash ('sha256-yCCmEwGZJeo2agCeiLfCttMNKOaDz/KGj2Zv6OF2ZVQ='), or a nonce ('nonce-...') is required to enable inline execution. The action has been blocked.",
+      "Connecting to 'http://127.0.0.1:9/' violates the following Content Security Policy directive: \"connect-src 'self'\". The action has been blocked.",
+      "Fetch API cannot load http://127.0.0.1:9/. Refused to connect because it violates the document's Content Security Policy."
+    ],
+    "pageErrors": [],
+    "foreignRequests": []
+  },
+  "summary": {
+    "headers": {
+      "responsesChecked": 14,
+      "allExact": true,
+      "headersPerResponse": 8
+    },
+    "production": {
+      "steps": 19,
+      "failedSteps": 0,
+      "pageErrors": 0,
+      "consoleErrors": 0,
+      "cspConsoleReports": 0,
+      "failedRequests": 0,
+      "foreignRequests": 0,
+      "sameOriginRequests": 24,
+      "missingUpgradeFeatures": []
+    },
+    "instrumentation": {
+      "axeRuns": 4,
+      "axeViolations": 0,
+      "appCspViolations": 0,
+      "controlCspViolations": 2,
+      "failedSteps": 0
+    },
+    "screenshots": [
+      "desktop-01-initial.png",
+      "desktop-02-vulnerable-run.png",
+      "desktop-03-cell-detail.png",
+      "desktop-04-anonymous-cell.png",
+      "desktop-05-fixed-run-with-diff.png",
+      "desktop-06-helpdesk-run.png",
+      "desktop-07-import-refused.png",
+      "mobile-01-initial.png",
+      "tablet-01-initial.png"
+    ],
+    "result": "PASS"
+  }
+}

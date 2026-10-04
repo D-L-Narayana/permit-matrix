@@ -206,7 +206,7 @@ describe('contract validation — review regressions', () => {
   });
 });
 
-describe('sixth-Fable regressions — routing ambiguity and export labelling', () => {
+describe('second review-cycle regressions — routing ambiguity and export labelling', () => {
   it('rejects two endpoints with the same method and path template', () => {
     const dup = { ...fixture, endpoints: [...fixture.endpoints, { id: 'get-invoice-admin', method: 'GET', path: '/invoices/{id}', resource: 'invoices', access: { roles: ['admin'], ownership: 'any' } }] };
     const r = validateContract(dup);
@@ -240,7 +240,8 @@ describe('sixth-Fable regressions — routing ambiguity and export labelling', (
     const server = createMockServer(c, []);
     const listed = server.handle({ method: 'GET', path: '/invoices', principal: 'p-mem-1' }).body?.items ?? [];
     for (const row of listed) expect(server.handle({ method: 'GET', path: `/invoices/${row.id}`, principal: 'p-mem-1' }).status).toBe(200);
-    expect(generateCases(c)).toHaveLength(83);
+    // 83 role × endpoint × target cases plus one no-credentials case per endpoint (6).
+    expect(generateCases(c)).toHaveLength(89);
   });
   it('states in the export that response bodies carry fictional field values even though headers are redacted', () => {
     const c = contract();

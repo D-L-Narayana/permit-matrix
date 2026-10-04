@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dln-permit-matrix.vercel.app/schema/permitmatrix.contract-1.schema.json",
+  "title": "permitmatrix.contract/1",
+  "description": "Permit Matrix authorization contract. Passing this schema is necessary but not sufficient: it mirrors the engine's size limits (LIMITS), identifier and path patterns and enumerations, but cross-references by id (principal roles, record owners, endpoint resources and roles, flaw endpoints), duplicate ids and routes, the mock:// or loopback-only servers rule and the 64 KB UTF-8 byte limit are enforced only by validateContract in src/engine/contract.ts, which also normalises the document (adds the 'fixed' build when absent and drops unknown keys).",
+  "$comment": "Hand-maintained alongside LIMITS in src/engine/contract.ts; src/engine/__tests__/schema.test.ts asserts the two agree.",
+  "type": "object",
+  "required": ["schema", "name", "version", "servers", "roles", "principals", "resources", "endpoints"],
+  "properties": {
+    "schema": {
+      "const": "permitmatrix.contract/1",
+      "description": "Format marker; the importer uses it to tell a contract from an OpenAPI document."
+    },
+    "name": { "$ref": "#/$defs/nonEmptyText", "description": "Human-readable API name (OpenAPI import: info.title)." },
+    "version": { "$ref": "#/$defs/nonEmptyText", "description": "Contract version label (OpenAPI import: info.version)." },
+    "servers": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "description": "Targets the contract describes. Only mock://<host> or an http(s) URL whose host is localhost, 127.0.0.1 or [::1] is accepted; anything else is refused by validateContract with 'External target refused'. This schema checks only type and length.",
+      "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+    },
+    "roles": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/role" },
+      "description": "Roles a principal may hold. Ids must be unique (checked by validateContract). LIMITS.maxRoles = 8."
+    },
+    "principals": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 24,
+      "items": { "$ref": "#/$defs/principal" },
+      "description": "Synthetic callers. Ids must be unique and every role must exist (checked by validateContract). LIMITS.maxPrincipals = 24."
+    },
+    "resources": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": { "$ref": "#/$defs/resource" },
+      "description": "Record collections the endpoints operate on. Ids must be unique (checked by validateContract). LIMITS.maxResources = 12."
+    },
+    "endpoints": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 40,
+      "items": { "$ref": "#/$defs/endpoint" },
+      "description": "Operations under test, in matrix order. Ids and method + path pairs must be unique (checked by validateContract). LIMITS.maxEndpoints = 40."
+    },
+    "builds": {
+      "type": "object",
+      "maxProperties": 8,
+      "description": "Named server builds keyed by build id. Each seeds flaws into the mock server; validateContract adds a 'fixed' build with no flaws when none is declared.",
+      "propertyNames": { "$ref": "#/$defs/fieldName" },
+      "patternProperties": {
+        "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$": { "$ref": "#/$defs/build" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "text": {
+      "type": "string",
+      "maxLength": 200,
+      "description": "Any free-text value (labels, tenants). LIMITS.maxStringLength = 200; may be empty."
+    },
+    "nonEmptyText": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+      "description": "Identifier: 1–64 characters, starts with a letter or digit, then letters, digits, '.', '_' or '-'. Matched case-insensitively by the engine, so the pattern lists both cases."
+    },
+    "actorId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+      "not": {
+        "type": "string",
+        "pattern": "^[Aa][Nn][Oo][Nn][Yy][Mm][Oo][Uu][Ss]$"
+      },
+      "description": "Role or principal identifier. 'anonymous' (any letter case) is reserved for the synthetic unauthenticated caller; ECMA-262 patterns have no inline flags, so each letter is spelled in both cases."
+    },
+    "fieldName": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+      "not": {
+        "type": "string",
+        "enum": ["__proto__", "constructor", "prototype"]
+      },
+      "description": "Record field name, writable/sensitive field entry or build key: the id pattern minus the names that collide with Object.prototype."
+    },
+    "fieldValue": {
+      "type": ["string", "number", "boolean", "null"],
+      "description": "Record field values are scalars only (string, finite number, boolean or null); nested objects and arrays are refused. JSON cannot encode a non-finite number, so no further constraint is needed here."
+    },
+    "fieldList": {
+      "type": "array",
+      "maxItems": 1000,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/fieldName" },
+      "description": "Distinct field names. LIMITS.maxListLength = 1000 caps every list the engine walks."
+    },
+    "role": {
+      "type": "object",
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/actorId" },
+        "label": { "$ref": "#/$defs/text" }
+      }
+    },
+    "principal": {
+      "type": "object",
+      "required": ["id", "role", "tenant", "label"],
+      "properties": {
+        "id": { "$ref": "#/$defs/actorId" },
+        "role": { "$ref": "#/$defs/actorId", "description": "Must equal the id of a declared role (checked by validateContract)." },
+        "tenant": { "$ref": "#/$defs/text" },
+        "label": { "$ref": "#/$defs/text" }
+      }
+    },
+    "record": {
+      "type": "object",
+      "required": ["id", "owner", "tenant", "fields"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "owner": { "$ref": "#/$defs/actorId", "description": "Must equal the id of a declared principal (checked by validateContract)." },
+        "tenant": { "$ref": "#/$defs/text" },
+        "fields": {
+          "type": "object",
+          "maxProperties": 24,
+          "propertyNames": { "$ref": "#/$defs/fieldName" },
+          "additionalProperties": { "$ref": "#/$defs/fieldValue" },
+          "description": "Scalar field values keyed by field name. LIMITS.maxFieldsPerRecord = 24."
+        }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "required": ["id", "label", "records"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "label": { "$ref": "#/$defs/text" },
+        "records": {
+          "type": "array",
+          "maxItems": 100,
+          "items": { "$ref": "#/$defs/record" },
+          "description": "Seed records for the mock server. LIMITS.maxRecordsPerResource = 100; may be empty."
+        }
+      }
+    },
+    "access": {
+      "type": "object",
+      "required": ["roles", "ownership"],
+      "properties": {
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/actorId" },
+          "description": "Distinct ids of the roles allowed to call the endpoint; an endpoint nobody may call is an error."
+        },
+        "ownership": {
+          "enum": ["any", "own", "same-tenant"],
+          "description": "Object scope: any record, only records the caller owns, or only records in the caller's tenant."
+        }
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "required": ["id", "method", "path", "resource", "access"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "method": { "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+        "path": {
+          "type": "string",
+          "maxLength": 121,
+          "pattern": "^(?=/)(?:/[A-Za-z0-9_-]+)*(?:/\\{id\\})?(?:/[A-Za-z0-9_-]+)*$",
+          "description": "Route template: '/' followed by non-empty literal segments ([A-Za-z0-9_-]) and at most one parameter, which must be spelled {id}. Each method + path pair may appear once (checked by validateContract)."
+        },
+        "resource": { "$ref": "#/$defs/id", "description": "Must equal the id of a declared resource (checked by validateContract)." },
+        "access": { "$ref": "#/$defs/access" },
+        "writableFields": { "$ref": "#/$defs/fieldList", "description": "Fields a PATCH/PUT/POST body may change; any other field in the body must be ignored." },
+        "sensitiveFields": { "$ref": "#/$defs/fieldList", "description": "Fields that must never appear in a GET response body." }
+      }
+    },
+    "flaw": {
+      "type": "object",
+      "required": ["endpoint", "kind"],
+      "properties": {
+        "endpoint": { "$ref": "#/$defs/id", "description": "Must equal the id of a declared endpoint (checked by validateContract)." },
+        "kind": {
+          "enum": ["skip-ownership-check", "skip-role-check", "accept-all-fields", "return-sensitive-fields", "deny-everything", "skip-authentication"]
+        }
+      }
+    },
+    "build": {
+      "type": "object",
+      "required": ["label", "flaws"],
+      "properties": {
+        "label": { "$ref": "#/$defs/text" },
+        "flaws": {
+          "type": "array",
+          "maxItems": 40,
+          "items": { "$ref": "#/$defs/flaw" },
+          "description": "Checks this build switches off. LIMITS.maxFlawsPerBuild = 40."
+        }
+      }
+    }
+  }
+}

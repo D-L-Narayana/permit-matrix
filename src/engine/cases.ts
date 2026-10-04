@@ -1,12 +1,35 @@
-import type { CaseCategory, Contract, Endpoint, Expectation, FieldValue, Principal, RecordRow, TargetKind, TestCase } from './types';
+import { ANONYMOUS_PRINCIPAL, ANONYMOUS_ROLE } from './types';
+import type { CaseCategory, Contract, Endpoint, Expectation, FieldValue, Principal, RecordRow, Resource, TargetKind, TestCase } from './types';
 
 export const hasPathParam = (endpoint: Endpoint): boolean => endpoint.path.includes('{id}');
+
+/** Rationale on every anonymous case: authentication precedes policy, so the expectation never depends on the endpoint. */
+export const ANONYMOUS_RATIONALE = 'No credentials are presented; the endpoint must reject the request (401) before any policy is evaluated.';
+
+export interface GenerateOptions {
+  /** Emit the anonymous (no-credentials) authentication row for every endpoint. */
+  anonymous?: boolean;
+}
 
 export function probeValue(original: FieldValue | undefined): FieldValue {
   if (typeof original === 'number') return original + 1;
   if (typeof original === 'boolean') return !original;
   if (typeof original === 'string') return `${original}-tampered`;
   return 'tampered';
+}
+
+/** Union of field names across a resource's records, in first-seen order (records may be heterogeneous). */
+export function resourceFieldNames(resource: Resource): string[] {
+  const seen = new Set<string>();
+  const names: string[] = [];
+  for (const record of resource.records) {
+    for (const name of Object.keys(record.fields)) {
+      if (seen.has(name)) continue;
+      seen.add(name);
+      names.push(name);
+    }
+  }
+  return names;
 }
 
 function pickTargets(records: RecordRow[], principal: Principal): Partial<Record<TargetKind, RecordRow>> {
@@ -28,28 +51,78 @@ function expectation(endpoint: Endpoint, principal: Principal, target: RecordRow
     return { expected: ok ? 'allow' : 'deny', category: 'object', rationale: ok ? 'Caller owns the target record.' : `Record is owned by ${target.owner}, not the caller; ownership rule is "own".` };
   }
   const ok = target.tenant === principal.tenant;
-  return { expected: ok ? 'allow' : 'deny', category: 'object', rationale: ok ? 'Target is inside the caller\u2019s tenant.' : `Record belongs to tenant ${target.tenant}; ownership rule is "same-tenant".` };
+  return { expected: ok ? 'allow' : 'deny', category: 'object', rationale: ok ? 'Target is inside the caller’s tenant.' : `Record belongs to tenant ${target.tenant}; ownership rule is "same-tenant".` };
+}
+
+/** POST on a collection creates a record: the base case checks the role, the probes check that only writable fields bind. */
+function createCases(endpoint: Endpoint, principal: Principal, resource: Resource | undefined): TestCase[] {
+  const e = expectation(endpoint, principal, undefined);
+  const allowed = e.expected === 'allow';
+  const cases: TestCase[] = [{
+    id: `${endpoint.id}|${principal.id}|create`,
+    endpoint: endpoint.id, principal: principal.id, role: principal.role,
+    targetKind: 'create', category: allowed ? 'object' : 'function', expected: e.expected,
+    rationale: allowed ? 'Role is allowed to create; the server must bind only writable fields.' : e.rationale,
+  }];
+  if (!allowed || !endpoint.writableFields || !resource) return cases;
+  const writable = new Set(endpoint.writableFields);
+  for (const field of resourceFieldNames(resource).filter((f) => !writable.has(f))) {
+    cases.push({
+      id: `${endpoint.id}|${principal.id}|create|write:${field}`,
+      endpoint: endpoint.id, principal: principal.id, role: principal.role,
+      targetKind: 'create', category: 'property', expected: 'allow', probeField: field,
+      rationale: `"${field}" is not in writableFields [${endpoint.writableFields.join(', ')}]; a create must not accept it.`,
+    });
+  }
+  return cases;
+}
+
+/** Every listing case plus, where the caller may list, one exposure probe per sensitive field (items must be stripped too). */
+function collectionCases(endpoint: Endpoint, principal: Principal): TestCase[] {
+  const e = expectation(endpoint, principal, undefined);
+  const cases: TestCase[] = [{
+    id: `${endpoint.id}|${principal.id}|collection`,
+    endpoint: endpoint.id, principal: principal.id, role: principal.role,
+    targetKind: 'collection', category: e.category === 'function' ? 'function' : 'object',
+    expected: e.expected, rationale: e.rationale,
+  }];
+  if (e.expected !== 'allow' || endpoint.method !== 'GET' || !endpoint.sensitiveFields) return cases;
+  for (const field of endpoint.sensitiveFields) {
+    cases.push({
+      id: `${endpoint.id}|${principal.id}|collection|read:${field}`,
+      endpoint: endpoint.id, principal: principal.id, role: principal.role,
+      targetKind: 'collection', category: 'property', expected: 'allow', probeField: field,
+      rationale: `"${field}" is marked sensitive; it must never appear in any listed item.`,
+    });
+  }
+  return cases;
+}
+
+/** The no-credentials row: collection endpoints are hit directly, item endpoints via the resource's first record. */
+function anonymousCase(endpoint: Endpoint, records: RecordRow[]): TestCase | undefined {
+  const base = { endpoint: endpoint.id, principal: ANONYMOUS_PRINCIPAL, role: ANONYMOUS_ROLE.id, category: 'authentication' as const, expected: 'deny' as const, rationale: ANONYMOUS_RATIONALE };
+  if (!hasPathParam(endpoint)) return { id: `${endpoint.id}|${ANONYMOUS_PRINCIPAL}|collection`, ...base, targetKind: 'collection' };
+  const target = records[0];
+  if (!target) return undefined;
+  return { id: `${endpoint.id}|${ANONYMOUS_PRINCIPAL}|cross-tenant`, ...base, targetKind: 'cross-tenant', targetRecord: target.id };
 }
 
 /**
  * Generates the full role × endpoint × object matrix plus property-level probes.
  * Output order is stable (contract order), so two runs over the same contract are identical.
  */
-export function generateCases(contract: Contract): TestCase[] {
+export function generateCases(contract: Contract, options: GenerateOptions = {}): TestCase[] {
+  // The no-credentials row is part of the standard matrix; callers opt out explicitly (e.g. to compare with older runs).
+  const anonymous = options.anonymous !== false;
   const cases: TestCase[] = [];
-  const byResource = new Map(contract.resources.map((r) => [r.id, r.records]));
+  const byResource = new Map(contract.resources.map((r) => [r.id, r]));
 
   for (const endpoint of contract.endpoints) {
-    const records = byResource.get(endpoint.resource) ?? [];
+    const resource = byResource.get(endpoint.resource);
+    const records = resource?.records ?? [];
     for (const principal of contract.principals) {
       if (!hasPathParam(endpoint)) {
-        const e = expectation(endpoint, principal, undefined);
-        cases.push({
-          id: `${endpoint.id}|${principal.id}|collection`,
-          endpoint: endpoint.id, principal: principal.id, role: principal.role,
-          targetKind: 'collection', category: e.category === 'function' ? 'function' : 'object',
-          expected: e.expected, rationale: e.rationale,
-        });
+        for (const c of endpoint.method === 'POST' ? createCases(endpoint, principal, resource) : collectionCases(endpoint, principal)) cases.push(c);
         continue;
       }
       const targets = pickTargets(records, principal);
@@ -87,6 +160,11 @@ export function generateCases(contract: Contract): TestCase[] {
           }
         }
       }
+    }
+    // Emitted last so every endpoint's cases stay contiguous and all pre-existing ids keep their relative order.
+    if (anonymous) {
+      const anon = anonymousCase(endpoint, records);
+      if (anon) cases.push(anon);
     }
   }
   return cases;

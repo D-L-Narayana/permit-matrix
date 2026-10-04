@@ -1,4 +1,5 @@
-import type { Contract, Endpoint, FieldValue, Flaw, FlawKind, MockRequest, MockResponse, RecordRow } from './types';
+import { ANONYMOUS_PRINCIPAL } from './types';
+import type { Contract, Endpoint, FieldValue, Flaw, FlawKind, MockRequest, MockResponse, Principal, RecordRow } from './types';
 
 const ID = /^[a-z0-9][a-z0-9._-]{0,63}$/i;
 
@@ -25,6 +26,12 @@ function validBody(body: unknown): body is Record<string, FieldValue> {
  * A deterministic, in-memory implementation of the contract. The "fixed" build enforces the
  * contract exactly; `flaws` switch off individual checks per endpoint so that the tester has
  * something real to catch. Nothing here performs network I/O.
+ *
+ * Requests are routed before they are authenticated: an unknown path is 404 and a known path with the
+ * wrong method is 405 for every caller, and whether a request may proceed without credentials is a
+ * property of the matched endpoint (the `skip-authentication` flaw). When that flaw lets a request
+ * through, the handler runs with no subject at all — no role to check and nothing to scope records
+ * by — which is exactly the shape of a route that is missing its authentication middleware.
  */
 export function createMockServer(contract: Contract, flaws: Flaw[]): MockServer {
   const state = new Map<string, Map<string, RecordRow>>();
@@ -54,11 +61,14 @@ export function createMockServer(contract: Contract, flaws: Flaw[]): MockServer 
     return { ...record, fields };
   };
 
-  const inScope = (endpoint: Endpoint, record: RecordRow, principalId: string, tenant: string): boolean => {
+  // `principal` is undefined only when `skip-authentication` let an unauthenticated request through; with no
+  // subject there is nothing to compare owner or tenant against, so the handler behaves as if ownership were `any`.
+  const inScope = (endpoint: Endpoint, record: RecordRow, principal: Principal | undefined): boolean => {
+    if (!principal) return true;
     if (has(endpoint, 'skip-ownership-check')) return true;
     if (endpoint.access.ownership === 'any') return true;
-    if (endpoint.access.ownership === 'own') return record.owner === principalId;
-    return record.tenant === tenant;
+    if (endpoint.access.ownership === 'own') return record.owner === principal.id;
+    return record.tenant === principal.tenant;
   };
 
   return {
@@ -68,13 +78,15 @@ export function createMockServer(contract: Contract, flaws: Flaw[]): MockServer 
       return row ? { ...row, fields: { ...row.fields } } : undefined;
     },
     handle(request) {
-      const principal = principals.get(request.principal);
-      if (!principal) return { status: 401, body: { error: 'unauthenticated' } };
-      const route = routes.find((r) => r.endpoint.method === request.method && r.regex.test(request.path));
-      if (!route) return { status: 404, body: { error: 'no such route' } };
+      const candidates = routes.filter((r) => r.regex.test(request.path));
+      if (candidates.length === 0) return { status: 404, body: { error: 'no such route' } };
+      const route = candidates.find((r) => r.endpoint.method === request.method);
+      if (!route) return { status: 405, body: { error: 'method not allowed' } };
       const { endpoint } = route;
+      const principal = principals.get(request.principal);
+      if (!principal && !has(endpoint, 'skip-authentication')) return { status: 401, body: { error: 'unauthenticated' } };
       if (has(endpoint, 'deny-everything')) return { status: 403, body: { error: 'forbidden' } };
-      if (!has(endpoint, 'skip-role-check') && !endpoint.access.roles.includes(principal.role)) {
+      if (principal && !has(endpoint, 'skip-role-check') && !endpoint.access.roles.includes(principal.role)) {
         return { status: 403, body: { error: 'forbidden: role' } };
       }
       if (request.body !== undefined && !validBody(request.body)) return { status: 400, body: { error: 'malformed body' } };
@@ -84,14 +96,19 @@ export function createMockServer(contract: Contract, flaws: Flaw[]): MockServer 
 
       if (recordId === undefined) {
         if (request.method === 'GET') {
-          const items = [...table.values()].filter((r) => inScope(endpoint, r, principal.id, principal.tenant)).map((r) => present(endpoint, r));
+          const items = [...table.values()].filter((r) => inScope(endpoint, r, principal)).map((r) => present(endpoint, r));
           return { status: 200, body: { items } };
         }
         if (request.method === 'POST') {
           counter += 1;
           const allowed = has(endpoint, 'accept-all-fields') ? null : new Set(endpoint.writableFields ?? []);
           const fields = Object.fromEntries(Object.entries(request.body ?? {}).filter(([k]) => !allowed || allowed.has(k)));
-          const row: RecordRow = { id: `${endpoint.resource}-new-${counter}`, owner: principal.id, tenant: principal.tenant, fields };
+          const row: RecordRow = {
+            id: `${endpoint.resource}-new-${counter}`,
+            owner: principal?.id ?? ANONYMOUS_PRINCIPAL,
+            tenant: principal?.tenant ?? '',
+            fields,
+          };
           table.set(row.id, row);
           return { status: 201, body: { id: row.id, fields: present(endpoint, row).fields } };
         }
@@ -100,7 +117,7 @@ export function createMockServer(contract: Contract, flaws: Flaw[]): MockServer 
 
       const record = table.get(recordId);
       if (!record) return { status: 404, body: { error: 'not found' } };
-      if (!inScope(endpoint, record, principal.id, principal.tenant)) return { status: 403, body: { error: 'forbidden: object' } };
+      if (!inScope(endpoint, record, principal)) return { status: 403, body: { error: 'forbidden: object' } };
 
       switch (request.method) {
         case 'GET': {

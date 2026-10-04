@@ -1,0 +1,39 @@
+Baseline measured on the untouched tree before the upgrade cycle (4 October 2026).
+Outputs are copied from the recorded runs; only the absolute working-directory path is elided as <repo>.
+
+$ npm ci --ignore-scripts --no-fund --no-audit
+added 124 packages in 5s
+
+$ npm test
+> permitmatrix@0.1.0 test
+> vitest run
+
+ RUN  v4.1.11 <repo>
+
+ ✓ src/engine/__tests__/engine.test.ts (28 tests) 67ms
+
+ Test Files  1 passed (1)
+      Tests  28 passed (28)
+
+$ npm run build
+> permitmatrix@0.1.0 build
+> tsc -p tsconfig.json --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+✓ 92 modules transformed.
+dist/index.html                   0.67 kB │ gzip:  0.37 kB
+dist/assets/index-DWScpIy6.css   11.27 kB │ gzip:  3.05 kB
+dist/assets/index-C6VjWrtn.js   303.69 kB │ gzip: 95.56 kB
+✓ built in 1.51s
+
+$ npm audit --audit-level=high
+found 0 vulnerabilities
+
+Browser baseline (headless Chromium, Playwright 1.63.0, built bundle served from a loopback static server):
+  14 workflow steps; 0 page errors; 0 console errors; 0 failed requests;
+  no horizontal overflow at 1440 / 768 / 375 px;
+  axe-core WCAG 2.0 A/AA + 2.1 AA: 0 violations on the initial view and after a run;
+  Export JSON produced a real download (permitmatrix-1.4.0-fixed.json, 68 791 bytes, no "mock-token-");
+  1 pre-existing defect found: with import errors displayed, axe rule "listitem" (serious) —
+    the dialog's <ul class="errors" role="alert"> overrides the list role, orphaning its <li> children.
+    Fixed in this cycle (live region moved to a persistent wrapper); re-measured in qa/upgrade-run.txt.

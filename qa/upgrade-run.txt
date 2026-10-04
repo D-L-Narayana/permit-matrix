@@ -1,0 +1,277 @@
+Upgrade cycle verification run (2026-10-04). Clean checkout: node_modules, dist and coverage were deleted before "npm ci".
+Every block below is the recorded output of the command shown (ANSI colour codes removed; the absolute checkout path is written as <repo>).
+
+==================== 01-npm-ci ====================
+$ npm ci --ignore-scripts --no-fund --no-audit
+(cwd <repo>)
+
+
+added 414 packages in 30s
+npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+[exit 0] 30s
+
+==================== 02-typecheck ====================
+$ npm run typecheck
+(cwd <repo>)
+
+
+> permitmatrix@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+[exit 0] 7s
+
+==================== 03-lint ====================
+$ npm run lint
+(cwd <repo>)
+
+
+> permitmatrix@0.1.0 lint
+> eslint . --max-warnings 0
+
+
+[exit 0] 10s
+
+==================== 04-test ====================
+$ npm test
+(cwd <repo>)
+
+
+> permitmatrix@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 <repo>
+
+ ✓ src/engine/__tests__/cases.test.ts (21 tests) 93ms
+ ✓ src/engine/__tests__/openapi.test.ts (49 tests) 145ms
+ ✓ src/engine/__tests__/runner.test.ts (25 tests) 77ms
+ ✓ src/engine/__tests__/contract.test.ts (58 tests) 77ms
+ ✓ src/engine/__tests__/lint.test.ts (29 tests) 44ms
+ ✓ src/engine/__tests__/diff.test.ts (10 tests) 163ms
+ ✓ src/engine/__tests__/report.test.ts (24 tests) 240ms
+ ✓ src/engine/__tests__/engine.test.ts (28 tests) 175ms
+ ✓ src/engine/__tests__/schema.test.ts (23 tests) 216ms
+ ✓ src/engine/__tests__/mockServer.test.ts (13 tests) 20ms
+ ✓ src/engine/__tests__/sarif.test.ts (11 tests) 40ms
+ ✓ src/engine/__tests__/integration.test.ts (11 tests) 131ms
+ ✓ src/ui/__tests__/matrix.test.tsx (8 tests) 989ms
+ ✓ src/ui/__tests__/importDialog.test.tsx (9 tests) 521ms
+ ✓ src/ui/__tests__/toolbar.test.tsx (6 tests) 460ms
+ ✓ src/ui/__tests__/caseLedger.test.tsx (6 tests) 207ms
+ ✓ src/ui/__tests__/pins.test.tsx (6 tests) 44ms
+ ✓ src/__tests__/app.flow.test.tsx (2 tests) 1076ms
+     ✓ starts with the demo contract loaded and nothing run  319ms
+     ✓ runs the vulnerable build, inspects a cell, follows evidence, re-runs remediated and flags stale inputs  756ms
+ ✓ src/ui/__tests__/findings.test.tsx (3 tests) 275ms
+ ✓ src/features/diff/__tests__/RunDiff.test.tsx (2 tests) 315ms
+     ✓ names the section, states the summary, lists fixed findings and exposes every changed case as a button  300ms
+ ✓ src/__tests__/app.import.test.tsx (5 tests) 1718ms
+     ✓ opens pre-filled with the current contract  429ms
+     ✓ refuses a contract that targets an external server and keeps the dialog open  316ms
+     ✓ loads a valid contract, closes the dialog and announces the import  322ms
+     ✓ "Reset to demo contract" restores the fixture text  384ms
+ ✓ src/ui/__tests__/rail.test.tsx (3 tests) 243ms
+ ✓ src/__tests__/app.a11y.test.tsx (3 tests) 1565ms
+     ✓ has no axe violations before and after a run  1124ms
+ ✓ src/__tests__/app.export.test.tsx (3 tests) 726ms
+
+ Test Files  24 passed (24)
+      Tests  358 passed (358)
+   Start at  22:39:41
+   Duration  26.83s (transform 1.37s, setup 0ms, import 4.64s, tests 9.56s, environment 8.79s)
+
+
+[exit 0] 27s
+
+==================== 05-test-coverage ====================
+$ npm run test:coverage
+(cwd <repo>)
+
+
+> permitmatrix@0.1.0 test:coverage
+> vitest run --coverage
+
+
+ RUN  v4.1.11 <repo>
+      Coverage enabled with v8
+
+ ✓ src/__tests__/app.import.test.tsx (5 tests) 1431ms
+     ✓ opens pre-filled with the current contract  418ms
+ ✓ src/__tests__/app.a11y.test.tsx (3 tests) 1867ms
+     ✓ has no axe violations before and after a run  1323ms
+     ✓ moves focus into the import dialog, closes it with Escape and returns focus to the trigger  321ms
+ ✓ src/__tests__/app.flow.test.tsx (2 tests) 1615ms
+     ✓ starts with the demo contract loaded and nothing run  491ms
+     ✓ runs the vulnerable build, inspects a cell, follows evidence, re-runs remediated and flags stale inputs  1122ms
+ ✓ src/ui/__tests__/matrix.test.tsx (8 tests) 858ms
+ ✓ src/__tests__/app.export.test.tsx (3 tests) 1065ms
+     ✓ keeps both exports disabled before any run  479ms
+ ✓ src/ui/__tests__/importDialog.test.tsx (9 tests) 660ms
+ ✓ src/ui/__tests__/toolbar.test.tsx (6 tests) 569ms
+ ✓ src/features/diff/__tests__/RunDiff.test.tsx (2 tests) 291ms
+ ✓ src/ui/__tests__/findings.test.tsx (3 tests) 365ms
+ ✓ src/ui/__tests__/rail.test.tsx (3 tests) 210ms
+ ✓ src/engine/__tests__/report.test.ts (24 tests) 89ms
+ ✓ src/engine/__tests__/schema.test.ts (23 tests) 98ms
+ ✓ src/ui/__tests__/caseLedger.test.tsx (6 tests) 291ms
+ ✓ src/engine/__tests__/engine.test.ts (28 tests) 78ms
+ ✓ src/engine/__tests__/diff.test.ts (10 tests) 66ms
+ ✓ src/engine/__tests__/openapi.test.ts (49 tests) 67ms
+ ✓ src/engine/__tests__/integration.test.ts (11 tests) 122ms
+ ✓ src/engine/__tests__/cases.test.ts (21 tests) 55ms
+ ✓ src/engine/__tests__/contract.test.ts (58 tests) 37ms
+ ✓ src/engine/__tests__/runner.test.ts (25 tests) 45ms
+ ✓ src/ui/__tests__/pins.test.tsx (6 tests) 48ms
+ ✓ src/engine/__tests__/lint.test.ts (29 tests) 35ms
+ ✓ src/engine/__tests__/sarif.test.ts (11 tests) 47ms
+ ✓ src/engine/__tests__/mockServer.test.ts (13 tests) 17ms
+
+ Test Files  24 passed (24)
+      Tests  358 passed (358)
+   Start at  22:40:08
+   Duration  26.50s (transform 942ms, setup 0ms, import 4.13s, tests 10.03s, environment 7.73s)
+
+ % Coverage report from v8
+---------------|---------|----------|---------|---------|-----------------------
+File           | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s     
+---------------|---------|----------|---------|---------|-----------------------
+All files      |   93.48 |    90.41 |     100 |   98.74 |                       
+ cases.ts      |   98.92 |    97.36 |     100 |     100 | 16,122                
+ contract.ts   |   89.65 |    90.47 |     100 |   99.48 | 173                   
+ diff.ts       |     100 |       95 |     100 |     100 | 38                    
+ lint.ts       |   97.22 |    90.75 |     100 |      99 | 107                   
+ mockServer.ts |   96.11 |    89.77 |     100 |   97.36 | 115,140               
+ openapi.ts    |   87.41 |    85.16 |     100 |   96.46 | ...19-120,279,310,321 
+ report.ts     |   98.95 |       90 |     100 |     100 | 55,85,152             
+ runner.ts     |   97.81 |    95.27 |     100 |     100 | ...01,117,132-133,217 
+ sarif.ts      |     100 |      100 |     100 |     100 |                       
+ types.ts      |     100 |      100 |     100 |     100 |                       
+---------------|---------|----------|---------|---------|-----------------------
+
+[exit 0] 27s
+
+==================== 06-build ====================
+$ npm run build
+(cwd <repo>)
+
+
+> permitmatrix@0.1.0 build
+> tsc -p tsconfig.json --noEmit && vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 110 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                              0.67 kB │ gzip:   0.37 kB
+dist/assets/ibm-plex-mono-latin-400-normal-CvHOgSBP.woff    13.14 kB
+dist/assets/ibm-plex-mono-latin-500-normal-CB9ihrfo.woff    13.16 kB
+dist/assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2   14.71 kB
+dist/assets/ibm-plex-mono-latin-500-normal-DSY6xOcd.woff2   14.89 kB
+dist/assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff    22.10 kB
+dist/assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2   22.59 kB
+dist/assets/ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff    23.88 kB
+dist/assets/ibm-plex-sans-latin-500-normal-BgVn5rGT.woff    23.92 kB
+dist/assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2   24.18 kB
+dist/assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2   24.25 kB
+dist/assets/index-DKl-EcGe.css                              15.07 kB │ gzip:   3.60 kB
+dist/assets/index-DD5h4aQ0.js                              345.62 kB │ gzip: 109.62 kB
+✓ built in 1.80s
+
+[exit 0] 7s
+
+==================== 07-verify-dist ====================
+$ npm run verify:dist
+(cwd <repo>)
+
+
+> permitmatrix@0.1.0 verify:dist
+> node scripts/verify-dist.mjs
+
+verify-dist: scanning 3 file(s) under dist/ (.js, .css, .html)
+  allow-listed hosts seen: github.com x1 (SARIF tool.driver.informationUri), json.schemastore.org x1 (SARIF 2.1.0 $schema identifier), owasp.org x1 (OWASP API Security Top 10 reference links), react.dev x2 (react-dom production error-decoder URL), www.w3.org x18 (XML/SVG/MathML namespace identifiers)
+verify-dist: OK — 3 file(s), no network/storage API tokens, no cross-origin references.
+
+[exit 0] 0s
+
+==================== 08-audit ====================
+$ npm audit --audit-level=high
+(cwd <repo>)
+
+found 0 vulnerabilities
+
+[exit 0] 1s
+
+==================== browser workflow check (headless Chromium via Playwright 1.63.0; the built bundle is served from loopback servers that apply the response headers declared in vercel.json) ====================
+policy source: vercel.json headers applied to every response of the private loopback servers
+expected on every response:
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  Cross-Origin-Resource-Policy: same-origin
+
+-- A. header verification: 14 responses, all headers exact: true --
+✓ / (index): status 200, 8 headers exact
+✓ /assets/ibm-plex-mono-latin-400-normal-CvHOgSBP.woff (asset ibm-plex-mono-latin-400-normal-CvHOgSBP.woff): status 200, 8 headers exact
+✓ /assets/ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2 (asset ibm-plex-mono-latin-400-normal-DMJ8VG8y.woff2): status 200, 8 headers exact
+✓ /assets/ibm-plex-mono-latin-500-normal-CB9ihrfo.woff (asset ibm-plex-mono-latin-500-normal-CB9ihrfo.woff): status 200, 8 headers exact
+✓ /assets/ibm-plex-mono-latin-500-normal-DSY6xOcd.woff2 (asset ibm-plex-mono-latin-500-normal-DSY6xOcd.woff2): status 200, 8 headers exact
+✓ /assets/ibm-plex-sans-latin-400-normal-CDDApCn2.woff2 (asset ibm-plex-sans-latin-400-normal-CDDApCn2.woff2): status 200, 8 headers exact
+✓ /assets/ibm-plex-sans-latin-400-normal-CYLoc0-x.woff (asset ibm-plex-sans-latin-400-normal-CYLoc0-x.woff): status 200, 8 headers exact
+✓ /assets/ibm-plex-sans-latin-500-normal-6ng42L7E.woff2 (asset ibm-plex-sans-latin-500-normal-6ng42L7E.woff2): status 200, 8 headers exact
+✓ /assets/ibm-plex-sans-latin-500-normal-BgVn5rGT.woff (asset ibm-plex-sans-latin-500-normal-BgVn5rGT.woff): status 200, 8 headers exact
+✓ /assets/ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff (asset ibm-plex-sans-latin-600-normal-Cu4Hd6ag.woff): status 200, 8 headers exact
+✓ /assets/ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2 (asset ibm-plex-sans-latin-600-normal-CuJfVYMP.woff2): status 200, 8 headers exact
+✓ /assets/index-DD5h4aQ0.js (asset index-DD5h4aQ0.js): status 200, 8 headers exact
+✓ /assets/index-DKl-EcGe.css (asset index-DKl-EcGe.css): status 200, 8 headers exact
+✓ /schema/permitmatrix.contract-1.schema.json (schema permitmatrix.contract-1.schema.json): status 200, 8 headers exact
+
+-- B. production-policy context: workflows under the enforced CSP, no injected scripts --
+✓ page loads — Permit Matrix · API authorization contract tester
+✓ no horizontal overflow desktop 1440 initial — 1440px
+✓ run completes — Run 89 cases → Ran 89 cases against "release/1.4.0 (vulnerable)" with 4 active flaw(s): 4 finding(s).
+✓ findings rendered — 4 finding articles
+✓ request redacted in ledger
+✓ evidence chip selects a case
+✓ anonymous case has no Authorization header
+✓ remediated build re-run — No findings
+✓ run comparison panel — Changes since previous runrelease/1.4.0 (vulnerable) (4 active flaws) → release/1.4.1 (remediated) (0 active flaws)4 findings fixed, 0 introduced; 31 cases improved, 0 regressedFixed findingsBroken Fu
+✓ Export JSON download — permitmatrix-1.4.0-fixed.json (73520 bytes)
+✓ Export SARIF download — permitmatrix-1.4.0-fixed.sarif.json (1430 bytes)
+✓ Helpdesk fixture run — Run 114 cases → Ran 114 cases against "release/2.3.0 (vulnerable)" with 4 active flaw(s): 4 finding(s).
+✓ Helpdesk auth-bypass finding shown — API2:2023 · high · export-tickets
+✓ anonymous export cell reports the failure — GET /tickets/export as Anonymous (no credentials): 1 cases, 1 failed
+✓ contract health panel — Contract healthNo warnings. Every lint rule passed for this contract.
+✓ external target refused on import — servers[0]: External target refused: "https://api.victim.example". Only mock:// or localhost targets are allowed.
+✓ dialog stays open after refusal
+✓ no horizontal overflow tablet 768 — 768px
+✓ no horizontal overflow mobile 375 — 375px
+page errors: 0; console errors: 0; CSP console reports: 0; failed requests: 0; requests to a foreign origin: 0; same-origin requests: 24
+viewport desktop 1440 initial: scrollWidth 1440 / innerWidth 1440 → horizontal overflow false
+viewport tablet 768: scrollWidth 768 / innerWidth 768 → horizontal overflow false
+viewport mobile 375: scrollWidth 375 / innerWidth 375 → horizontal overflow false
+download via "Export JSON": permitmatrix-1.4.0-fixed.json, 73520 bytes, schema ok true, contains mock-token- false
+download via "Export SARIF": permitmatrix-1.4.0-fixed.sarif.json, 1430 bytes, schema ok true, contains mock-token- false
+missing upgrade features: none
+
+-- C. instrumentation context: same headers; axe-core loaded from a same-origin /__qa/ route (admitted by script-src 'self'); securitypolicyviolation listener installed via CDP --
+✓ axe initial — 0 violations
+✓ axe after run — 0 violations
+✓ axe helpdesk after run — 0 violations
+✓ axe import dialog open — 0 violations
+✓ CSP violations from the application — 0 securitypolicyviolation events
+✓ CSP enforcement controls — inline script blocked (script-src-elem reported), cross-origin fetch blocked (connect-src reported)
+✓ CSP console reporting channel — 3 "Refused to…" console reports observed for the controls
+axe (initial): 0 violation(s)
+axe (after run): 0 violation(s)
+axe (helpdesk after run): 0 violation(s)
+axe (import dialog open): 0 violation(s)
+application CSP violations: 0; positive-control CSP violations: 2 [script-src-elem → inline; connect-src → http://127.0.0.1:9/]
+result: PASS
+

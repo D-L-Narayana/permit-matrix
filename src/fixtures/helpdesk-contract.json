@@ -1,0 +1,51 @@
+{
+  "schema": "permitmatrix.contract/1",
+  "name": "Helpdesk Desk API (synthetic demo)",
+  "version": "2.3.0",
+  "servers": ["mock://helpdesk.example"],
+  "roles": [
+    { "id": "admin", "label": "Admin" },
+    { "id": "agent", "label": "Support agent" },
+    { "id": "customer", "label": "Customer" }
+  ],
+  "principals": [
+    { "id": "p-admin-1", "role": "admin", "tenant": "acme.example", "label": "Quinn (admin)" },
+    { "id": "p-agent-1", "role": "agent", "tenant": "acme.example", "label": "Harper (agent, acme)" },
+    { "id": "p-cust-1", "role": "customer", "tenant": "acme.example", "label": "Rowan (customer, acme)" },
+    { "id": "p-agent-2", "role": "agent", "tenant": "globex.example", "label": "Sage (agent, globex)" },
+    { "id": "p-cust-2", "role": "customer", "tenant": "globex.example", "label": "Blair (customer, globex)" }
+  ],
+  "resources": [
+    {
+      "id": "tickets",
+      "label": "Tickets",
+      "records": [
+        { "id": "tkt-1001", "owner": "p-cust-1", "tenant": "acme.example", "fields": { "subject": "Cannot sign in", "body": "The password reset link expires before I can open it.", "status": "open", "priority": "high", "internalNotes": "Clock skew suspected on the auth node." } },
+        { "id": "tkt-1002", "owner": "p-agent-1", "tenant": "acme.example", "fields": { "subject": "Invoice PDF renders blank", "body": "Exported invoices open as empty pages.", "status": "pending", "priority": "normal", "internalNotes": "Reproduced with the March template only." } },
+        { "id": "tkt-1003", "owner": "p-admin-1", "tenant": "acme.example", "fields": { "subject": "Add SSO domain", "body": "Please allow sign-in from the new corporate domain.", "status": "closed", "priority": "low", "internalNotes": "Approved by the account owner." } },
+        { "id": "tkt-2001", "owner": "p-cust-2", "tenant": "globex.example", "fields": { "subject": "Webhook retries stopped", "body": "No deliveries since the weekend maintenance window.", "status": "open", "priority": "high", "internalNotes": "Endpoint returned 410; retries were disabled automatically." } },
+        { "id": "tkt-2002", "owner": "p-agent-2", "tenant": "globex.example", "fields": { "subject": "Export job stuck", "body": "The nightly export has been marked running for two days.", "status": "pending", "priority": "normal", "internalNotes": "Worker queue drained manually." } }
+      ]
+    }
+  ],
+  "endpoints": [
+    { "id": "list-tickets", "method": "GET", "path": "/tickets", "resource": "tickets", "access": { "roles": ["admin", "agent", "customer"], "ownership": "same-tenant" }, "sensitiveFields": ["internalNotes"] },
+    { "id": "create-ticket", "method": "POST", "path": "/tickets", "resource": "tickets", "access": { "roles": ["admin", "agent", "customer"], "ownership": "any" }, "writableFields": ["subject", "body"] },
+    { "id": "get-ticket", "method": "GET", "path": "/tickets/{id}", "resource": "tickets", "access": { "roles": ["admin", "agent", "customer"], "ownership": "same-tenant" }, "sensitiveFields": ["internalNotes"] },
+    { "id": "patch-ticket", "method": "PATCH", "path": "/tickets/{id}", "resource": "tickets", "access": { "roles": ["admin", "agent"], "ownership": "same-tenant" }, "writableFields": ["status", "priority"] },
+    { "id": "delete-ticket", "method": "DELETE", "path": "/tickets/{id}", "resource": "tickets", "access": { "roles": ["admin"], "ownership": "any" } },
+    { "id": "export-tickets", "method": "GET", "path": "/tickets/export", "resource": "tickets", "access": { "roles": ["admin"], "ownership": "any" } }
+  ],
+  "builds": {
+    "vulnerable": {
+      "label": "release/2.3.0 (vulnerable)",
+      "flaws": [
+        { "endpoint": "export-tickets", "kind": "skip-authentication" },
+        { "endpoint": "create-ticket", "kind": "accept-all-fields" },
+        { "endpoint": "list-tickets", "kind": "return-sensitive-fields" },
+        { "endpoint": "list-tickets", "kind": "skip-ownership-check" }
+      ]
+    },
+    "fixed": { "label": "release/2.3.1 (remediated)", "flaws": [] }
+  }
+}

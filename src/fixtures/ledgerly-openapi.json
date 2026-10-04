@@ -1,0 +1,224 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Ledgerly Billing API (synthetic demo)",
+    "version": "1.4.0",
+    "summary": "Synthetic billing API used by the Permit Matrix demo, expressed as OpenAPI 3.1.",
+    "description": "Fictional data only: every person, tenant and value is invented and all domains use .example. The x-permitmatrix extensions carry what OpenAPI cannot express: the principals who call the API (with role and tenant), the records they own, the access rule of each operation and the seeded server builds. Importing this document yields the same contract as ledgerly-contract.json."
+  },
+  "servers": [
+    { "url": "mock://ledgerly.example", "description": "In-browser mock. Permit Matrix never contacts a network host." }
+  ],
+  "x-permitmatrix": {
+    "roles": [
+      { "id": "admin", "label": "Admin" },
+      { "id": "manager", "label": "Tenant manager" },
+      { "id": "member", "label": "Member" }
+    ],
+    "principals": [
+      { "id": "p-admin-1", "role": "admin", "tenant": "acme.example", "label": "Avery (admin)" },
+      { "id": "p-mgr-1", "role": "manager", "tenant": "acme.example", "label": "Morgan (manager, acme)" },
+      { "id": "p-mem-1", "role": "member", "tenant": "acme.example", "label": "Riley (member, acme)" },
+      { "id": "p-mem-2", "role": "member", "tenant": "globex.example", "label": "Sam (member, globex)" }
+    ],
+    "resources": [
+      {
+        "id": "invoices",
+        "label": "Invoices",
+        "records": [
+          { "id": "inv-1001", "owner": "p-mem-1", "tenant": "acme.example", "fields": { "amount": 120.5, "status": "open", "memo": "Design retainer" } },
+          { "id": "inv-1002", "owner": "p-mgr-1", "tenant": "acme.example", "fields": { "amount": 980.0, "status": "paid", "memo": "Quarterly licence" } },
+          { "id": "inv-2001", "owner": "p-mem-2", "tenant": "globex.example", "fields": { "amount": 45.0, "status": "open", "memo": "Courier" } },
+          { "id": "inv-0001", "owner": "p-admin-1", "tenant": "acme.example", "fields": { "amount": 10.0, "status": "void", "memo": "Platform fee" } }
+        ]
+      },
+      {
+        "id": "users",
+        "label": "Users",
+        "records": [
+          { "id": "p-admin-1", "owner": "p-admin-1", "tenant": "acme.example", "fields": { "displayName": "Avery", "role": "admin", "email": "avery@acme.example", "passwordHash": "argon2id$synthetic$0001" } },
+          { "id": "p-mgr-1", "owner": "p-mgr-1", "tenant": "acme.example", "fields": { "displayName": "Morgan", "role": "manager", "email": "morgan@acme.example", "passwordHash": "argon2id$synthetic$0002" } },
+          { "id": "p-mem-1", "owner": "p-mem-1", "tenant": "acme.example", "fields": { "displayName": "Riley", "role": "member", "email": "riley@acme.example", "passwordHash": "argon2id$synthetic$0003" } },
+          { "id": "p-mem-2", "owner": "p-mem-2", "tenant": "globex.example", "fields": { "displayName": "Sam", "role": "member", "email": "sam@globex.example", "passwordHash": "argon2id$synthetic$0004" } }
+        ]
+      }
+    ],
+    "builds": {
+      "vulnerable": {
+        "label": "release/1.4.0 (vulnerable)",
+        "flaws": [
+          { "endpoint": "get-invoice", "kind": "skip-ownership-check" },
+          { "endpoint": "delete-user", "kind": "skip-role-check" },
+          { "endpoint": "patch-user", "kind": "accept-all-fields" },
+          { "endpoint": "get-user", "kind": "return-sensitive-fields" }
+        ]
+      },
+      "fixed": { "label": "release/1.4.1 (remediated)", "flaws": [] }
+    }
+  },
+  "paths": {
+    "/invoices": {
+      "get": {
+        "operationId": "list-invoices",
+        "summary": "List the invoices the caller may see",
+        "x-permitmatrix-resource": "invoices",
+        "x-permitmatrix-access": { "roles": ["admin", "manager", "member"], "ownership": "own" },
+        "responses": {
+          "200": {
+            "description": "Invoices owned by the caller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "amount": { "type": "number" },
+                          "status": { "type": "string", "enum": ["open", "paid", "void"] },
+                          "memo": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invoices/{invoiceId}": {
+      "parameters": [
+        {
+          "name": "invoiceId",
+          "in": "path",
+          "required": true,
+          "description": "Renamed to {id} on import: Permit Matrix supports one path parameter per route.",
+          "schema": { "type": "string" }
+        }
+      ],
+      "get": {
+        "operationId": "get-invoice",
+        "summary": "Read one invoice",
+        "x-permitmatrix-resource": "invoices",
+        "x-permitmatrix-access": { "roles": ["admin", "manager", "member"], "ownership": "own" },
+        "responses": {
+          "200": {
+            "description": "The invoice",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "amount": { "type": "number" },
+                    "status": { "type": "string", "enum": ["open", "paid", "void"] },
+                    "memo": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "403": { "description": "The caller does not own this invoice" },
+          "404": { "description": "No such invoice" }
+        }
+      },
+      "patch": {
+        "operationId": "patch-invoice",
+        "summary": "Update an invoice memo",
+        "x-permitmatrix-resource": "invoices",
+        "x-permitmatrix-access": { "roles": ["admin", "manager"], "ownership": "same-tenant" },
+        "x-permitmatrix-writable": ["memo"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/merge-patch+json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memo": { "type": "string", "maxLength": 200 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "The updated invoice" },
+          "403": { "description": "The invoice belongs to another tenant" }
+        }
+      }
+    },
+    "/users/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+      ],
+      "get": {
+        "operationId": "get-user",
+        "summary": "Read a user profile",
+        "x-permitmatrix-resource": "users",
+        "x-permitmatrix-access": { "roles": ["admin", "manager", "member"], "ownership": "own" },
+        "x-permitmatrix-sensitive": ["passwordHash"],
+        "responses": {
+          "200": {
+            "description": "The profile. A correct build never returns passwordHash; the vulnerable build leaks it.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "displayName": { "type": "string" },
+                    "role": { "type": "string" },
+                    "email": { "type": "string" },
+                    "passwordHash": {
+                      "type": "string",
+                      "x-permitmatrix-sensitive": true,
+                      "description": "Flagged inline as well as listed in x-permitmatrix-sensitive; the importer merges both into one sensitiveFields entry."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "patch-user",
+        "summary": "Update the caller's display name",
+        "x-permitmatrix-resource": "users",
+        "x-permitmatrix-access": { "roles": ["admin", "manager", "member"], "ownership": "own" },
+        "x-permitmatrix-writable": ["displayName"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "displayName": { "type": "string", "maxLength": 200 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "The updated profile" }
+        }
+      },
+      "delete": {
+        "operationId": "delete-user",
+        "summary": "Delete a user (admin only)",
+        "x-permitmatrix-resource": "users",
+        "x-permitmatrix-access": { "roles": ["admin"], "ownership": "any" },
+        "responses": {
+          "204": { "description": "Deleted" },
+          "403": { "description": "Only admins may delete users" }
+        }
+      }
+    }
+  }
+}

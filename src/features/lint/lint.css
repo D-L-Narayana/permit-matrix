@@ -1,0 +1,23 @@
+/* Contract health panel — advisory lint output.
+   Severity tones stay away from the security verdicts: `warn` borrows the amber attention tone (--overdeny, itself
+   a functional rather than a security signal), `info` stays neutral ink; pass/bypass/exposure colours are never used,
+   so a reader does not confuse a contract-authoring note with a security verdict. */
+.lint-panel { display: grid; gap: 8px; margin-top: 18px; }
+/* The heading is the section's first child, so the global h2.section:first-child rule would drop its top margin;
+   the panel's own margin above restores the rhythm of the rail. */
+.lint-panel h2.section { margin-bottom: 0; }
+.lint-summary, .lint-clean { margin: 0; font-size: 13px; color: var(--ink-2); }
+.lint-clean { border: 1px dashed var(--line); border-radius: var(--radius); padding: 8px 10px; background: var(--panel); }
+.lint-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.lint-item { display: grid; gap: 4px; padding: 8px 10px; border: 1px solid var(--line-2); border-left-width: 4px; border-radius: var(--radius); background: var(--panel); font-size: 13px; }
+.lint-item.sev-warn { border-left-color: var(--overdeny); }
+.lint-item.sev-info { border-left-color: var(--ink-3); }
+.lint-head { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.lint-badge { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.lint-badge.sev-warn { background: var(--overdeny-bg); color: var(--overdeny); }
+.lint-badge.sev-info { background: var(--panel-2); color: var(--ink-3); }
+.lint-code { color: var(--ink); font-weight: 500; }
+.lint-path { color: var(--ink-2); word-break: break-all; }
+.lint-message { margin: 0; color: var(--ink-2); }
+.lint-panel.compact .lint-item { padding: 6px 8px; font-size: 12px; }
+.lint-panel.compact .lint-head { gap: 3px 6px; }
